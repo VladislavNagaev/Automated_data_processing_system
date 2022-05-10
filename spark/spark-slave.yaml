@@ -1,0 +1,28 @@
+
+version: '3.8'
+
+services:
+
+  spark-worker-2:
+    image: bde2020/spark-worker:3.2.0-hadoop3.2
+    container_name: spark-worker-2
+    networks: 
+      - main-overlay-network
+    depends_on:
+      - spark-master
+    ports:
+      - 8092:8081
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+      - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:9000
+    healthcheck:
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always
+
+networks:
+  main-overlay-network:
+    external: true
+    driver: overlay
+    attachable: true

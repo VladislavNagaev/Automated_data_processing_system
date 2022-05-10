@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+
+  hadoop-datanode-2:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop-datanode-2
+    networks:
+      - main-overlay-network
+    volumes:
+      - type: bind
+        source: ./hadoop-data/hadoop-datanode-2
+        target: /hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "hadoop-namenode:9870"
+    env_file:
+      - ./.env
+    healthcheck:
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always
+
+
+networks:
+  main-overlay-network:
+    external: true
+    driver: overlay
+    attachable: true

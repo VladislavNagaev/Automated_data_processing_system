@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+
+  hadoop-resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop-resourcemanager
+    restart: always
+    networks:
+      - main-overlay-network        
+    environment:
+      SERVICE_PRECONDITION: "hadoop-namenode:9000 hadoop-namenode:9870 hadoop-datanode-1:9864 hadoop-datanode-2:9864"
+    env_file:
+      - ./.env
+
+  hadoop-nodemanager:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop-nodemanager
+    restart: always
+    networks:
+      - main-overlay-network        
+    environment:
+      SERVICE_PRECONDITION: "hadoop-namenode:9000 hadoop-namenode:9870 hadoop-datanode-1:9864 hadoop-datanode-2:9864 hadoop-resourcemanager:8088"
+    env_file:
+      - ./.env
+
+  hadoop-historyserver:
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop-historyserver
+    restart: always
+    networks:
+      - main-overlay-network        
+    environment:
+      SERVICE_PRECONDITION: "hadoop-namenode:9000 hadoop-namenode:9870 hadoop-datanode-1:9864 hadoop-datanode-2:9864 hadoop-resourcemanager:8088"
+    volumes:
+      - type: bind
+        source: ./hadoop-data/hadoop-historyserver
+        target: /hadoop/yarn/timeline
+    env_file:
+      - ./.env
+
+
+networks:
+  main-overlay-network:
+    external: true
+    driver: overlay
+    attachable: true
